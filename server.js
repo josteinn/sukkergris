@@ -6,11 +6,16 @@ const server = express();
 
 const onCloud = process.env.ON_RENDER_CLOUD;
 
-let mount = "/data";
+let mount = `C:\data`;
 
 if (onCloud) {
     mount = "/var/data";
 }
+
+console.log();
+
+// Serve static files from the 'public' directory under the '/static' route
+server.use("/static",express.static(mount));
 
 //--------------------------------------------------------------
 function createTextFile(filename, content) {
