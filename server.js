@@ -2,8 +2,10 @@ const express = require('express');
 
 const server = express();
 
+const envTest = process.env.ON_RENDER_CLOUD;
+
 server.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('Hello World! ' + envTest);
 });
 
 // starting the server ------------------------------------------
