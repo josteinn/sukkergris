@@ -1,5 +1,3 @@
-const PORT = process.env.PORT || 3000;
-
 const express = require("express");
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
@@ -69,9 +67,9 @@ server.use((req, res, next) => {
 server.use(errorhandler);
 
 // start server ------------------------------------
-server.set("port", PORT);
-server.listen(server.get("port"), function () {
-	console.log("server running", server.get("port"));
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`Server is running on ${PORT}`);
 });
 
 // on exit -----------------------------------------
