@@ -119,7 +119,7 @@ router.post("/", secure_group, secure_user, upload.single("img_file"), async fun
 		}
 
 		//image handling
-		const filename = await fileUtils.imageHandlerProduct(req.file, res.locals.groupkey);
+		const fileObj = await fileUtils.imageHandlerProduct(req.file, res.locals.groupkey);
 
 		//create data obj
 		const fields = {
@@ -135,7 +135,8 @@ router.post("/", secure_group, secure_user, upload.single("img_file"), async fun
 			stock: bd.stock || null,
 			expShip: bd.expected_shipped || null,
 			resMemb: bd.reserved_members || null,
-			image: filename || "",
+			image: fileObj.image || "",
+			thumb: fileObj.thumb || "",
 			extr1: bd.extra_1 || null,
 			extr2: bd.extra_2 || null,
 			extr3: bd.extra_3 || null,
@@ -194,13 +195,13 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), async func
 		}
 
 		//image handling
-		let filename;
+		let fileObj;
 		if (req.file) {
 			//add new image
-			filename = await fileUtils.imageHandlerProduct(req.file, res.locals.groupkey);
+			fileObj = await fileUtils.imageHandlerProduct(req.file, res.locals.groupkey);
 
 			//delete old image
-			await fileUtils.deleteFileProduct(result.rows[0].image, res.locals.groupkey);
+			await fileUtils.deleteFileProduct(result.rows[0].image, result.rows[0].thumb, res.locals.groupkey);
 		}
 
 		//create data obj
@@ -218,7 +219,8 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), async func
 			stock: bd.stock || result.rows[0].stock,
 			expShip: bd.expected_shipped || result.rows[0].expected_shipped,
 			resMemb: bd.reserved_members || result.rows[0].reserved_members,
-			image: filename || result.rows[0].image,
+			image: fileObj.image || result.rows[0].image,
+			thumb: fileObj.thumb || result.rows[0].thumb,
 			extr1: bd.extra_1 || result.rows[0].extra_1,
 			extr2: bd.extra_2 || result.rows[0].extra_2,
 			extr3: bd.extra_3 || result.rows[0].extra_3,

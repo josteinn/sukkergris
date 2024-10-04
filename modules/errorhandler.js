@@ -125,7 +125,7 @@ const ENDPOINT_NOT_FOUND = {
 function errorHandler (err, req, res, next) {
 
     msg = err.message;
-    console.log(msg); //************* fjernes ved publish ************* */   
+    //console.log(msg); //************* fjernes ved publish ************* */   
 
 	if (msg.search("AUTH01") != -1) {
         res.statusMessage = NO_GROUP_KEY.msg;

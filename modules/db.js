@@ -70,12 +70,12 @@ db.getPublicProduct = function (id, groupkey) {
 db.addProduct = function(fd) {
     let columns = [
         'name', 'category_id', 'description', 'price', 'discount', 'carbohydrates', 'fat', 'protein', 'energy', 'stock',
-        'expected_shipped', 'reserved_members', 'image', 'extra_1', 'extra_2', 'extra_3', 'extra_4', 'heading', 'product_num', 'groupkey'
+        'expected_shipped', 'reserved_members', 'image', 'thumb', 'extra_1', 'extra_2', 'extra_3', 'extra_4', 'heading', 'product_num', 'groupkey'
     ];
 
     let values = [
         fd.name, fd.category, fd.descr, fd.price, fd.discount, fd.carbs, fd.fat, fd.protein, fd.energy, fd.stock,
-        fd.expShip, fd.resMemb, fd.image, fd.extr1, fd.extr2, fd.extr3, fd.extr4, fd.heading, fd.prodNum, fd.groupkey
+        fd.expShip, fd.resMemb, fd.image, fd.thumb, fd.extr1, fd.extr2, fd.extr3, fd.extr4, fd.heading, fd.prodNum, fd.groupkey
     ];
 
     let { sql, filteredValues } = generateInsertSQL('chocolates', columns, values); //helper function at the end of this file
@@ -84,11 +84,11 @@ db.addProduct = function(fd) {
 }
 db.updateProduct = function(fd) {
     let sql = `UPDATE chocolates SET name = $1, category_id = $2, description = $3, price = $4, discount = $5, carbohydrates = $6, fat = $7, protein = $8,
-               energy = $9, stock = $10, expected_shipped = $11, reserved_members = $12, image = $13, extra_1 = $14, extra_2 = $15,
-               extra_3 = $16, extra_4 = $17, heading = $18 WHERE id = $19 AND groupkey = $20 RETURNING *`;
+               energy = $9, stock = $10, expected_shipped = $11, reserved_members = $12, image = $13, thumb = $14, extra_1 = $15, extra_2 = $16,
+               extra_3 = $17, extra_4 = $18, heading = $19 WHERE id = $20 AND groupkey = $21 RETURNING *`;
     let values = [
         fd.name, fd.category, fd.descr, fd.price, fd.discount, fd.carbs, fd.fat, fd.protein, fd.energy, fd.stock, fd.expShip, fd.resMemb,
-        fd.image, fd.extr1, fd.extr2, fd.extr3, fd.extr4, fd.heading, fd.id, fd.groupkey
+        fd.image, fd.thumb, fd.extr1, fd.extr2, fd.extr3, fd.extr4, fd.heading, fd.id, fd.groupkey
     ];
 
     return pool.query(sql, values); //return the promise    

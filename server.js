@@ -51,7 +51,7 @@ server.use("/msgboard/beenz", beenz);
 server.use("/log", log);
 server.use("/webshop/testproducts", test);
 
-//route for image files ----------------------------
+//route for static image files ---------------------
 let mount = "C:\\data";
 if (process.env.ON_RENDER_CLOUD) {
 	mount = "/var/data";

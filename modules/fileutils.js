@@ -5,6 +5,9 @@ const path = require('path');
 const fs = require('fs').promises;
 const defaultImage = require("./default_image.js").defaultImg;
 
+
+
+
 //----------------------------------------------
 exports.imageHandlerProduct = async function (file, groupkey) {
 
@@ -19,31 +22,34 @@ exports.imageHandlerProduct = async function (file, groupkey) {
 	try {
 
 		let jimpImg;
-		let filename;
+		let filenameLarge;
+		let filenameSmall;
 
 		if (!file) {
 			const base64String = defaultImage.image;
 			const base64Data = base64String.replace(/^data:image\/\w+;base64,/, '');	
 			jimpImg = await jimp.read(Buffer.from(base64Data, 'base64'));
-			filename = utils.generateRandomFilename("default.png", groupkey);		
+			filenameLarge = utils.generateRandomFilename("default.png", groupkey);
+			filenameSmall = utils.generateRandomFilename("default.png", groupkey);		
 		}
 		else {
 			jimpImg = await jimp.read(file.buffer);
-			filename = utils.generateRandomFilename(file.originalname, groupkey);
+			filenameLarge = utils.generateRandomFilename(file.originalname, groupkey);
+			filenameSmall = utils.generateRandomFilename(file.originalname, groupkey);
 		}
 		
 		let jimpThm = jimpImg.clone();
 		jimpImg.resize(300, 300);
-		jimpThm.resize(80, 80);		
+		jimpThm.resize(100, 100);		
 
-		const filepathLarge = path.join(mountLarge, filename);
-		const filepathSmall = path.join(mountSmall, filename);
+		const filepathLarge = path.join(mountLarge, filenameLarge);
+		const filepathSmall = path.join(mountSmall, filenameSmall);
 
 		// Save the resized image
 		await jimpImg.writeAsync(filepathLarge);
 		await jimpThm.writeAsync(filepathSmall);
 
-		return filename;
+		return {image:filenameLarge, thumb:filenameSmall};
 	}
 	catch (err) {
 		throw (err);
@@ -51,7 +57,7 @@ exports.imageHandlerProduct = async function (file, groupkey) {
 }
 
 //----------------------------------------------
-exports.deleteFileProduct = async function (filename, groupkey) {
+exports.deleteFileProduct = async function (filenameLarge, filenameSmall, groupkey) {
 
 	let mountLarge = `C:\\data\\${groupkey}\\large`;
 	let mountSmall = `C:\\data\\${groupkey}\\small`;
@@ -61,8 +67,8 @@ exports.deleteFileProduct = async function (filename, groupkey) {
 		mountSmall = `/var/data/${groupkey}/small`;
 	}
 
-	const filepathLarge = path.join(mountLarge, filename);
-	const filepathSmall = path.join(mountSmall, filename);
+	const filepathLarge = path.join(mountLarge, filenameLarge);
+	const filepathSmall = path.join(mountSmall, filenameSmall);
 
 	try {
 		// Check if the large file exists before unlinking
@@ -114,7 +120,7 @@ exports.imageHandlerUser = async function (file, groupkey) {
 			filename = utils.generateRandomFilename(file.originalname, groupkey);
 		}
 
-		jimpImg.resize(80, 80);
+		jimpImg.resize(100, 100);
 
 		const filepath = path.join(mount, filename);
 

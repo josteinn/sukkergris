@@ -5,7 +5,8 @@ const fileUtils = require('./fileutils.js');
 const cfg = require('./config');
 const router = express.Router();
 const { secure_group } = require('./protect');
-
+const fs = require('fs').promises;
+const path = require('path');
 const mem = multer.memoryStorage();
 const upload = multer({ storage: mem, limits: { fileSize: 1000000, fieldSize: 500, fields: 100, files: 1, headerPairs: 100 } }); //save to buffer
 
@@ -81,7 +82,7 @@ router.post("/", secure_group, upload.single("img_file"), async function (req, r
 
         let result = await db.addTestProduct(fields);
 
-        if (result.rows.length > 0) {            
+        if (result.rows.length > 0) {
 
             //remove confidensial data to be sent back        
             delete result.rows[0].groupkey;
@@ -150,7 +151,7 @@ router.put("/", secure_group, upload.single("img_file"), async function (req, re
 
         result = await db.updateTestProduct(fields);
 
-        if (result.rows.length > 0) {            
+        if (result.rows.length > 0) {
 
             //remove confidensial data to be sent back        
             delete result.rows[0].groupkey;
@@ -173,7 +174,7 @@ router.delete("/", secure_group, async function (req, res, next) {
     try {
 
         trimObjectStrings(req.query);
-        
+
         //we must have the id
         if (!req.query["product_id"]) {
             throw new Error("DB05");
@@ -201,5 +202,48 @@ router.delete("/", secure_group, async function (req, res, next) {
     }
 });
 
+
+// GET - test products ------------------------------
+router.get("/files", secure_group, async function (req, res, next) {
+
+    try {
+
+        //mounting the folder ---------------------
+        let mount = "C:\\data";
+        if (process.env.ON_RENDER_CLOUD) {
+            mount = "/var/data";
+        }
+
+        // List all files in the folder recursively
+        const files = await listFilesRecursively(mount);
+
+        res.status(200).json(files).end();
+    }
+    catch (err) {
+        next(err);
+    }
+});
+
+
+
+// Helper function to list files recursively
+async function listFilesRecursively(dir) {
+    let results = [];
+    const list = await fs.readdir(dir, { withFileTypes: true });
+
+    for (const file of list) {
+        const filePath = path.join(dir, file.name);
+        if (file.isDirectory()) {
+            results = results.concat(await listFilesRecursively(filePath));
+        } else {
+            results.push(filePath);
+        }
+    }
+
+    return results;
+}
+
 // --------------------------------------------------
 module.exports = router;
+
+///webshop/testproducts/files?key=ADMIN001
