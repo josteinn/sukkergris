@@ -246,4 +246,6 @@ async function listFilesRecursively(dir) {
 // --------------------------------------------------
 module.exports = router;
 
-///webshop/testproducts/files?key=ADMIN001
+//webshop/testproducts/files?key=ADMIN001
+//https://sukkergris.onrender.com/webshop/testproducts/files?key=ADMIN001
+

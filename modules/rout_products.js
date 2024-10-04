@@ -19,12 +19,9 @@ router.get("/", secure_group, get_cred, async function (req, res, next) {
 		let result;
 		let search;
 
-		//is there a searchtext?
+		//not a searchtext?
 		if (!req.query["search"]) {
 			search = "";
-		}
-		else {
-			search = req.query["search"].trim();
 		}
 
 		//is there a logged in user?
