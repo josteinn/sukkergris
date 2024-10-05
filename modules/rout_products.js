@@ -189,11 +189,11 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), async func
 
 		if (result.rows.length < 1) {
 			throw new Error("DB01");
-		}
+		}		
 
 		//image handling
 		let fileObj;
-		if (req.file) {
+		if (req.file) {			
 			//add new image
 			fileObj = await fileUtils.imageHandlerProduct(req.file, res.locals.groupkey);
 
@@ -216,8 +216,8 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), async func
 			stock: bd.stock || result.rows[0].stock,
 			expShip: bd.expected_shipped || result.rows[0].expected_shipped,
 			resMemb: bd.reserved_members || result.rows[0].reserved_members,
-			image: fileObj.image || result.rows[0].image,
-			thumb: fileObj.thumb || result.rows[0].thumb,
+			image: fileObj?.image || result.rows[0].image,
+			thumb: fileObj?.thumb || result.rows[0].thumb,
 			extr1: bd.extra_1 || result.rows[0].extra_1,
 			extr2: bd.extra_2 || result.rows[0].extra_2,
 			extr3: bd.extra_3 || result.rows[0].extra_3,
@@ -261,10 +261,11 @@ router.delete("/", secure_group, secure_user, async function (req, res, next) {
 		}		
 
 		let result = await db.deleteProduct(req.query["id"], res.locals.groupkey);
+		
 		if (result.rows.length > 0) {
 
 			//delete the image
-            await fileUtils.deleteFileProduct(result.rows[0].img);
+            await fileUtils.deleteFileProduct(result.rows[0].image, result.rows[0].thumb, res.locals.groupkey);
 
 			//remove confidensial data to be sent back 
 			delete result.rows[0].groupkey;
