@@ -46,7 +46,7 @@ router.post("/", secure_group, get_cred, async function (req, res, next) {
     try {
         
         let result;
-        let bd = req.body;        
+        let bd = req.body;
 
         //wrong content-type?
 		if(req.headers["content-type"].search(/application\/json/i) == -1) {            
@@ -68,18 +68,18 @@ router.post("/", secure_group, get_cred, async function (req, res, next) {
         //create data obj
         const fields = {
             name: bd.customer_name,
-            street: bd.description,
-            city: bd.category,
-            zip: bd.details,
+            street: bd.street,
+            city: bd.city,
+            zip: bd.zipcode,
             country: bd.country,
             shipId: bd.shipping_id || 3,
             content: bd.content,
             userId: res.locals.userid || null,
             orderNumber: ordernum,
             groupkey: res.locals.groupkey
-        };		
+        };
         
-		result = await db.addOrder(fd);		
+		result = await db.addOrder(fields);		
 		
         if (result.rows.length > 0) {
             delete result.rows[0].groupkey;     

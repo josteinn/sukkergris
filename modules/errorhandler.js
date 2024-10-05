@@ -70,7 +70,7 @@ const ID_MISSING = {
     http_code: 400
 };
 const NOT_UNIQUE = {
-    msg: "Only one record is allowed with the same name or ID (must be unique)",
+    msg: "Only one record is allowed with the same name, ID or a group of ID's (must be unique)",
     code: "DB06",
     http_code: 400
 };
@@ -97,6 +97,11 @@ const NO_BOX_ID = {
 const NO_BOX_NAME = {
     msg: "Can't find a pickupbox with the specified name/token",
     code: "DB11",
+    http_code: 400
+};
+const BAD_INTERVAL = {
+    msg: "A value is not within a valid interval",
+    code: "DB12",
     http_code: 400
 };
 const WRONG_CONTENT_TYPE = {
@@ -214,7 +219,11 @@ function errorHandler (err, req, res, next) {
     else if (msg.search("DB11") != -1) {
         res.statusMessage = NO_BOX_NAME.msg;
         res.status(NO_BOX_NAME.http_code).json(NO_BOX_NAME).end();
-    }    
+    }
+    else if (msg.search("check_rating_interval") != -1) {
+        res.statusMessage = BAD_INTERVAL.msg;
+        res.status(BAD_INTERVAL.http_code).json(BAD_INTERVAL).end();
+    }   
     else if (msg.search("in JSON at position") != -1) {
         res.statusMessage = BAD_JSON.msg;
         res.status(BAD_JSON.http_code).json(BAD_JSON).end();

@@ -176,13 +176,13 @@ db.deleteUser = function (id, groupkey) {
 
 // comments -----------------------------------------------------
 db.getAllComments = function(groupkey) {
-    let sql = "SELECT * FROM comments WHERE groupkey = $1 ORDER BY plant_id, date"; 
+    let sql = "SELECT * FROM comments WHERE groupkey = $1 ORDER BY product_id, date"; 
     let val = [groupkey];   
     return pool.query(sql, val); //return the promise    
 }
-db.getAllCommentsByPlant = function(plant_id, groupkey) {
-    let sql = "SELECT * FROM comments WHERE plant_id = $1 AND groupkey = $2 ORDER BY date"; 
-    let val = [plant_id, groupkey];   
+db.getAllCommentsByProduct = function(product_id, groupkey) {
+    let sql = "SELECT * FROM comments WHERE product_id = $1 AND groupkey = $2 ORDER BY date"; 
+    let val = [product_id, groupkey];   
     return pool.query(sql, val); //return the promise    
 }
 db.getAllCommentsByUser = function(userid, groupkey) {
@@ -190,10 +190,20 @@ db.getAllCommentsByUser = function(userid, groupkey) {
     let val = [userid, groupkey];   
     return pool.query(sql, val); //return the promise    
 }
-db.addComment = function(comment_text, rating, plant_id, user_id, groupkey) {
-    let sql = "INSERT INTO comments (comment_text, rating, plant_id, user_id, groupkey) VALUES ($1, $2, $3, $4, $5) RETURNING *"; 
-    let val = [comment_text, rating, plant_id, user_id, groupkey];   
+db.getCommentByUserAndProduct = function(userid, product_id, groupkey) {
+    let sql = "SELECT * FROM comments WHERE user_id = $1 AND product_id = $2 AND groupkey = $3 ORDER BY date"; 
+    let val = [userid, product_id, groupkey];   
     return pool.query(sql, val); //return the promise    
+}
+db.addComment = function(comment_text, rating, product_id, user_id, groupkey) {
+    let sql = "INSERT INTO comments (comment_text, rating, product_id, user_id, groupkey) VALUES ($1, $2, $3, $4, $5) RETURNING *"; 
+    let val = [comment_text, rating, product_id, user_id, groupkey];   
+    return pool.query(sql, val); //return the promise    
+}
+db.updateComment = function(comment_text, rating, product_id, user_id, comment_id, groupkey) {
+    let sql = "UPDATE comments SET comment_text = $1, rating = $2, product_id = $3, user_id = $4 WHERE id = $5 AND groupkey = $6 RETURNING *";
+    let val = [comment_text, rating, product_id, user_id, comment_id, groupkey];   
+    return pool.query(sql, val); //return the promise 
 }
 db.deleteComment = function(id, groupkey) {
     let sql = "DELETE FROM comments WHERE id = $1 AND groupkey = $2 RETURNING *"; 
@@ -304,7 +314,7 @@ db.addShipment = function(order_id, box_id, pickup_code, shipping_id, final, des
     return pool.query(sql, val); //return the promise    
 }
 db.getOrderShipments = function(order_id, groupkey) {
-    let sql = "SELECT * from shipments WHERE order_id = $1 AND groupkey = $2 ORDER BY deliver_date";
+    let sql = "SELECT * from shipments WHERE order_id = $1 AND groupkey = $2 ORDER BY shipped_date";
     let val = [order_id, groupkey];   
     return pool.query(sql, val); //return the promise
 }
@@ -315,7 +325,7 @@ db.getOrderNumShipments = function(order_num, groupkey) {
     return pool.query(sql, val); //return the promise
 }
 db.getAllShipments = function(groupkey) {    
-    let sql = "SELECT * from shipments WHERE groupkey = $1 ORDER BY deliver_date";
+    let sql = "SELECT * from shipments WHERE groupkey = $1 ORDER BY shipped_date";
     let val = [groupkey];   
     return pool.query(sql, val); //return the promise
 }

@@ -279,7 +279,7 @@ router.delete("/", secure_group, secure_user, async function (req, res, next) {
             delete result.rows[0].groupkey;
 
             //delete the image
-            await fileUtils.deleteFileUser(result.rows[0].thumb);
+            await fileUtils.deleteFileUser(result.rows[0].thumb, res.locals.groupkey);
 
             res.status(200).json({ msg: "delete user ok", record: result.rows[0] }).end();
         }

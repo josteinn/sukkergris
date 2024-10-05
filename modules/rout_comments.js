@@ -12,9 +12,9 @@ router.get("/", secure_group, get_cred, async function (req, res, next) {
         
         let result;
         
-        if (req.query["plant_id"]) {
-            let plant_id = req.query["plant_id"].trim();
-            result = await db.getAllCommentsByPlant(plant_id, res.locals.groupkey); 
+        if (req.query["product_id"]) {
+            let plant_id = req.query["product_id"].trim();
+            result = await db.getAllCommentsByProduct(product_id, res.locals.groupkey); 
         }
         else {
             if (res.locals.superuser) {
@@ -46,7 +46,10 @@ router.post("/", secure_group, secure_user, async function (req, res, next) {
 
     try {        
         
-        let bd = req.body;        
+        let bd = req.body;
+        
+        const rating = bd.rating || 5;
+        const comment_text = bd.comment_text || "I have rated this product";
         
         //wrong content-type?
 		if(req.headers["content-type"].search(/application\/json/i) == -1) {
@@ -59,19 +62,37 @@ router.post("/", secure_group, secure_user, async function (req, res, next) {
 			throw new Error("DB03");
 		}
 
-        //can't add comments for other plants than: static and in the group
-        let product = await db.getProduct(bd.plant_id, res.locals.groupkey);
-        if (product.rows.length == 0) {
-            throw new Error("DB07");
+        //must have product_id
+        if (!bd.product_id) {
+            throw new Error("DB04");
         }
 
-        const rating = bd.rating || 1;
+        let result1;
+        let result2;
+        let result3;
+
+        //can't add comments for other products than: static and in the group
+        result1 = await db.getProduct(bd.product_id, res.locals.groupkey);
+        if (result1.rows.length == 0) {
+            throw new Error("DB01");
+        }
+
+        //only one comment for each product - check if we must use add or update
+        result2 = await db.getCommentByUserAndProduct(res.locals.userid, bd.product_id, res.locals.groupkey);      
         
-        let result = await db.addComment(bd.comment_text, rating, bd.plant_id, res.locals.userid, res.locals.groupkey);
+        if (result2.rows.length > 0) {
+            result3 = await db.updateComment(comment_text, rating, bd.product_id, res.locals.userid, result2.rows[0].id, res.locals.groupkey);            
+        }
+        else {
+
+            console.log((res.locals.userid));
+            result3 = await db.addComment(comment_text, rating, bd.product_id, res.locals.userid, res.locals.groupkey);
+            
+        }        
 		
-        if (result.rows.length > 0) {
-            delete result.rows[0].groupkey;       
-            res.status(200).json({msg: "insert comment ok", record: result.rows[0]}).end();
+        if (result3.rows.length > 0) {
+            delete result3.rows[0].groupkey;       
+            res.status(200).json({msg: "Insert/update comment ok", record: result3.rows[0]}).end();
         }
         else {
             throw new Error("DB02");
