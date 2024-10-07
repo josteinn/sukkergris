@@ -15,29 +15,29 @@ const upload = multer({ storage: mem, limits: { fileSize: 1000000, fieldSize: 50
 // GET - users ------------------------------
 router.get("/", secure_group, secure_user, async function (req, res, next) {
 
-	try {
-        
-        let result; 
-            
+    try {
+
+        let result;
+
         if (!req.query["userid"] || req.query["userid"].trim() == "") {
             result = await db.getAllUsers(res.locals.groupkey);
         }
         else {
-            result = await db.getUserById(req.query["userid"], res.locals.groupkey);                 
-        }       		
+            result = await db.getUserById(req.query["userid"], res.locals.groupkey);
+        }
 
         //remove confidensial data to be sent back
         for (let row of result.rows) {
             delete row.pswhash;
             delete row.salt;
             delete row.groupkey;
-        }        
+        }
 
-		res.status(200).json(result.rows).end();
-	}
-	catch (err) {
-		next(err);
-	}
+        res.status(200).json(result.rows).end();
+    }
+    catch (err) {
+        next(err);
+    }
 });
 
 // POST - admin user login --------------------------
@@ -105,7 +105,7 @@ router.post("/login", secure_group, async function (req, res, next) {
         if (pswCheck == false) {
             throw new Error("AUTH03");
         }
-        
+
         let userid = data.rows[0].id;
         let username = data.rows[0].username;
         let superuser = data.rows[0].superuser;
@@ -131,12 +131,12 @@ router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, asyn
 
     try {
 
-        let bd = req.body;        
+        let bd = req.body;
 
         //wrong content-type?
-		if(req.headers["content-type"].search(/multipart\/form-data/i) == -1) {
-			throw new Error("SRV01");
-		}
+        if (req.headers["content-type"].search(/multipart\/form-data/i) == -1) {
+            throw new Error("SRV01");
+        }
 
         //reached limit?
         let users = await db.getAllUsers(res.locals.groupkey);
@@ -144,21 +144,36 @@ router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, asyn
             throw new Error("DB03");
         }
 
-        let username = req.body["username"];
+        //**************
+
+        //must have credentials 
+        if (!bd.credentials) {
+            throw new Error("DB05");
+        }
+
+        let cred = decodeCred(bd.credentials);
+
+        if (cred.username.trim() == "" || cred.password.trim() == "") {
+            throw new Error("DB04");
+        }
+
+        //**************
+
+        /*let username = req.body["username"];
         let password = req.body["password"];
 
         //must have username and password 
         if (!username || !password) {
             throw new Error("DB05");
-        }                       
+        }*/
 
-        let hash = createHash(bd.password);
+        let hash = createHash(cred.password);
 
         //image handling
         const filename = await fileUtils.imageHandlerUser(req.file, res.locals.groupkey);
 
-        let result = await db.addUser(username, hash.value, hash.salt, bd.fullname, bd.street, bd.city, bd.zipcode, bd.country, filename, res.locals.groupkey);
-        
+        let result = await db.addUser(cred.username, hash.value, hash.salt, bd.fullname, bd.street, bd.city, bd.zipcode, bd.country, filename, res.locals.groupkey);
+
         if (result.rows.length > 0) {
 
             //remove confidensial data to be sent back        
@@ -169,7 +184,7 @@ router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, asyn
         }
         else {
             throw new Error("DB02");
-        }        
+        }
     }
     catch (err) {
         next(err);
@@ -182,28 +197,49 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFo
     try {
 
         let bd = req.body;
-        let result;        
+        let result;
         let newHash;
         let newSalt;
 
         //wrong content-type?
-		if(req.headers["content-type"].search(/multipart\/form-data/i) == -1) {
-			throw new Error("SRV01");
-		}                
-        
+        if (req.headers["content-type"].search(/multipart\/form-data/i) == -1) {
+            throw new Error("SRV01");
+        }
+
         //retrieve existing data
         result = await db.getUserById(res.locals.userid, res.locals.groupkey);
 
         if (result.rows.length < 1) {
             throw new Error("DB01");
         }
+
+        //**************
+
+        //credentials
         
+        let cred;
+        if (bd.credentials) {
+            cred = decodeCred(bd.credentials);
+
+            if (cred.username.trim() == "" || cred.password.trim() == "") {
+                throw new Error("DB04");
+            }
+
+            const hash = createHash(cred.password);
+            newHash = hash.value;
+            newSalt = hash.salt;
+        }
+
+        //**************
+
+        /*
         if (bd["password"]) {
             const hash = createHash(bd["password"]);
             newHash = hash.value;
             newSalt = hash.salt;
         }
-        
+        */
+
         //image handling
         let filename;
         if (req.file) {
@@ -217,7 +253,7 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFo
         //create data obj
         const fields = {
             userid: res.locals.userid,
-            name: bd.username || result.rows[0].username,
+            name: cred?.username || result.rows[0].username,
             hash: newHash || result.rows[0].pswhash,
             salt: newSalt || result.rows[0].salt,
             fullname: bd.fullname || result.rows[0].full_name,
@@ -228,7 +264,7 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFo
             thumb: filename || result.rows[0].thumb,
             groupkey: res.locals.groupkey
         }
-        
+
         result = await db.updateUser(fields);
 
         if (result.rows.length > 0) {
@@ -250,7 +286,7 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFo
 // DELETE - delete user -----------------------------
 router.delete("/", secure_group, secure_user, async function (req, res, next) {
 
-    try {        
+    try {
 
         if (req.query["id"] && !res.locals.superuser) {
             throw new Error("AUTH04");
@@ -266,7 +302,7 @@ router.delete("/", secure_group, secure_user, async function (req, res, next) {
                 throw new Error("DB05");
             }
 
-            id = req.query["id"];            
+            id = req.query["id"];
         }
 
         let result = await db.deleteUser(id, res.locals.groupkey);

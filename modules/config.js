@@ -4,6 +4,7 @@ const connstring = process.env.DATABASE_URL || process.env.DB_URL;
 const secret = process.env.SECRET;
 
 const keyTxt = process.env.GROUP_KEYS;
+
 const grKeys = keyTxt.split(" ");
 
 cfg = {

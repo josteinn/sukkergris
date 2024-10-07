@@ -11,12 +11,22 @@ exports.decodeCred = function (credString) {
 
     let cred = {};
 
-    let b64String = credString.replace(/basic /i, "");
-    let asciiString = Buffer.from(b64String, "base64").toString("ascii"); // 'josteinn:kongolav'	
-    cred.username = asciiString.replace(/:.*/, ""); //josteinn	
-    cred.password = asciiString.replace(cred.username + ":", ""); //kongolav
+    try {
 
-    return cred;
+        let b64String = credString.replace(/basic /i, "");
+        let asciiString = Buffer.from(b64String, "base64").toString("ascii"); // 'josteinn:kongolav'	
+        cred.username = asciiString.replace(/:.*/, ""); //josteinn	
+        cred.password = asciiString.replace(cred.username + ":", ""); //kongolav
+        
+        return cred;
+    }
+    catch (error) {
+
+        cred.username = "";
+        cred.password = "";
+
+        return cred;
+    }
 }
 
 // ---------------------------------------------
@@ -76,19 +86,19 @@ exports.createBoxToken = function (box_name) {
 exports.verifyToken = function (token) {
 
     token = token.replace(/bearer /i, "");
-    
+
     try {
         let payload = jwt.verify(token, cfg.SECRET);
         return payload;
     }
     catch (err) {
         throw new Error("AUTH02");
-    }    
+    }
 }
 
 //--------------------------------------------------------
-exports.createProductNumber = function(prefix) {
-    
+exports.createProductNumber = function (prefix) {
+
     let code_length = 4;
     const txt = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
     let code = "";
@@ -104,25 +114,25 @@ exports.createProductNumber = function(prefix) {
 
 
 //--------------------------------------------------------
-exports.generateRandomFilename = function(originalname, groupkey) {
+exports.generateRandomFilename = function (originalname, groupkey) {
     const randomString = crypto.randomBytes(8).toString('hex');
     const extension = path.extname(originalname);
     return `${groupkey}-${randomString}${extension}`;
 }
 
 //--------------------------------------------------------
-exports.trimObjectStrings = function(obj) {
-    
+exports.trimObjectStrings = function (obj) {
+
     for (let key in obj) {
         if (typeof obj[key] === 'string') {
             obj[key] = obj[key].trim();
-        } 
+        }
     }
 }
 
 //---------------------------------------------------
-exports.getOrderNumber = function() {
-    
+exports.getOrderNumber = function () {
+
     let id_length = 6;
     const txt = "BFTUIOEFDGHYTRJKHGASERTGHNBRTREEFGHN";
 
@@ -132,7 +142,7 @@ exports.getOrderNumber = function() {
         id_txt += txt.charAt(rnd);
     }
 
-    return "ORD-" + id_txt + "-Y2024";       
+    return "ORD-" + id_txt + "-Y2024";
 }
 
 
