@@ -229,6 +229,11 @@ db.getShipping = function() {
 }
 
 // messages -------------------------------------------------
+db.getMessageById = function(id, groupkey) {
+    let sql = "SELECT * FROM messages WHERE id = $1 AND groupkey = $2"; 
+    let val = [id, groupkey];   
+    return pool.query(sql, val); //return the promise    
+}
 db.getMessagesInThread = function(thread, groupkey) {
     let sql = "SELECT * FROM messages WHERE thread = $1 AND groupkey = $2 ORDER BY start_of_thread DESC, date ASC"; 
     let val = [thread, groupkey];   
@@ -254,9 +259,9 @@ db.deleteMessage = function(id, groupkey) {
     let val = [id, groupkey];   
     return pool.query(sql, val); //return the promise    
 }
-db.deleteUserMessage = function(id, user_id, groupkey) {
-    let sql = "DELETE FROM messages WHERE id = $1 AND user_id = $2 AND groupkey = $3 RETURNING *"; 
-    let val = [id, user_id, groupkey];   
+db.deleteThread = function(thread, groupkey) {
+    let sql = "DELETE FROM messages WHERE thread = $1 AND groupkey = $2 RETURNING *"; 
+    let val = [thread, groupkey];   
     return pool.query(sql, val); //return the promise    
 }
 db.addMessageNewThread = function(heading, message_text, user_id, groupkey) {

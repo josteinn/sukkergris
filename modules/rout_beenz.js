@@ -37,14 +37,15 @@ router.put("/", secure_group, secure_user, async function (req, res, next) {
         if (req.body["userid"] == res.locals.userid) {
             throw new Error("DB07");
         }
-
+        
         //Number of beenz must be between 1 and 5
         let b = parseFloat(req.body["beenz"])
         if (b < 1 || b > 5) {
-            throw new Error("DB04");
+            throw new Error("DB12");
         }
+            
 
-        //get the influnce for the logged in user
+        //get the infleunce for the logged in user (the judge)
         let influence = 1; //default influence
         let user = await db.getUserById(res.locals.userid, res.locals.groupkey);       
         
@@ -52,20 +53,17 @@ router.put("/", secure_group, secure_user, async function (req, res, next) {
             influence = user.rows[0].beenz;
         }       
         
-        totalBeenz = influence * parseFloat(req.body["beenz"]);
-        if (!totalBeenz) {
-            throw new Error("DB04");
-        }
+        const beenzGiven = req.body["beenz"]; 
         
         //check if the logged in user ("judge") has already given beenz for the user
         let result;
         let tst = await db.getBeenzByUser(res.locals.userid, req.body["userid"], res.locals.groupkey);
         if (tst.rows.length > 0) {
             let id = tst.rows[0].id;
-            result = await db.updateBeenz(totalBeenz, influence, id, res.locals.groupkey);
+            result = await db.updateBeenz(beenzGiven, influence, id, res.locals.groupkey);
         }
         else {
-            result = await db.addBeenz(req.body["userid"], totalBeenz, influence, res.locals.userid, res.locals.groupkey);
+            result = await db.addBeenz(req.body["userid"], beenzGiven, influence, res.locals.userid, res.locals.groupkey);
         }                
 		
         if (result.rows.length > 0) {

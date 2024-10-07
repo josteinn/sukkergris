@@ -11,7 +11,7 @@ exports.decodeCred = function (credString) {
 
     let cred = {};
 
-    let b64String = credString.replace("basic ", ""); // 'am9zdGVpbm46a29uZ29sYXY='	
+    let b64String = credString.replace(/basic /i, "");
     let asciiString = Buffer.from(b64String, "base64").toString("ascii"); // 'josteinn:kongolav'	
     cred.username = asciiString.replace(/:.*/, ""); //josteinn	
     cred.password = asciiString.replace(cred.username + ":", ""); //kongolav
@@ -75,6 +75,8 @@ exports.createBoxToken = function (box_name) {
 // ---------------------------------------------
 exports.verifyToken = function (token) {
 
+    token = token.replace(/bearer /i, "");
+    
     try {
         let payload = jwt.verify(token, cfg.SECRET);
         return payload;

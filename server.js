@@ -45,7 +45,7 @@ server.use("/webshop/categories", categories);
 server.use("/logistics/shippingtypes", shiptypes);
 server.use("/logistics", logistics);
 server.use("/msgboard/messages", messages);
-server.use("/msgboard/beenz", beenz);
+server.use("/users/beenz", beenz);
 //server.use("/public", express.static("tst_client"));
 
 server.use("/log", log);

@@ -102,25 +102,42 @@ router.post("/", secure_group, secure_user, async function (req, res, next) {
 router.delete("/", secure_group, secure_user, async function (req, res, next) {
 
     try {
-        let result;
+        let result1;
+        let result2;
 
         // we must have the id
         if (!req.query["message_id"]) {
             throw new Error("DB05");
         }
-        
-        let message_id = req.query["message_id"];        
 
-        if (res.locals.superuser == true) {
-            result = await db.deleteMessage(message_id, res.locals.groupkey);
+        let message_id = req.query["message_id"];
+
+        //retrieve the message
+        result1 = await db.getMessageById(message_id, res.locals.groupkey);
+
+        if (result1.rows.length < 1) {
+            throw new Error("DB01");
+        }
+
+        const startOfThread = result1.rows[0].start_of_thread;
+        const thread = result1.rows[0].thread;
+        const creator = result1.rows[0].user_id;
+
+        if (res.locals.userid != creator && res.locals.superuser == false) {
+            throw new Error("DB07");
+        }
+
+        //delete the whole thread if the message is the start of the thread
+        if (startOfThread) {
+            result2 = await db.deleteThread(thread, res.locals.groupkey);
         }
         else {
-            result = await db.deleteUserMessage(message_id, res.locals.userid, res.locals.groupkey);
+            result2 = await db.deleteMessage(message_id, res.locals.groupkey);
         }
 
-        if (result.rows.length > 0) {
-            delete result.rows[0].groupkey;
-            res.status(200).json({ msg: "delete message ok", record: result.rows[0] }).end();
+        if (result2.rows.length > 0) {
+            delete result2.rows[0].groupkey;
+            res.status(200).json({ msg: "delete message ok", record: result2.rows[0] }).end();
         }
         else {
             throw new Error("DB01");

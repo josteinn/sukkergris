@@ -6,7 +6,7 @@ const fileUtils = require('./fileutils.js');
 const cfg = require('./config');
 
 const router = express.Router();
-const { secure_group, secure_user } = require('./protect');
+const { secure_group, secure_user, sanitizeFormData } = require('./protect');
 const { verifyPassword, createToken, decodeCred, createHash } = require('./utils');
 
 const mem = multer.memoryStorage();
@@ -127,7 +127,7 @@ router.post("/login", secure_group, async function (req, res, next) {
 
 
 // POST - add user ----------------------------------
-router.post("/", secure_group, upload.single("img_file"), async function (req, res, next) {
+router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, async function (req, res, next) {
 
     try {
 
@@ -177,7 +177,7 @@ router.post("/", secure_group, upload.single("img_file"), async function (req, r
 })
 
 // PUT - update user -----------------------------
-router.put("/", secure_group, secure_user, upload.single("img_file"), async function (req, res, next) {
+router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFormData, async function (req, res, next) {
 
     try {
 

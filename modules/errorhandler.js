@@ -75,7 +75,7 @@ const NOT_UNIQUE = {
     http_code: 400
 };
 const WRONG_ID = {
-    msg: "Wrong ID - the supplied ID can't be used with the current credentials",
+    msg: "Wrong ID - the supplied ID/info can't be used with the current credentials",
     code: "DB07",
     http_code: 400
 };
@@ -223,7 +223,11 @@ function errorHandler (err, req, res, next) {
     else if (msg.search("check_rating_interval") != -1) {
         res.statusMessage = BAD_INTERVAL.msg;
         res.status(BAD_INTERVAL.http_code).json(BAD_INTERVAL).end();
-    }   
+    }
+    else if (msg.search("DB12") != -1) {
+        res.statusMessage = BAD_INTERVAL.msg;
+        res.status(BAD_INTERVAL.http_code).json(BAD_INTERVAL).end();
+    }  
     else if (msg.search("in JSON at position") != -1) {
         res.statusMessage = BAD_JSON.msg;
         res.status(BAD_JSON.http_code).json(BAD_JSON).end();

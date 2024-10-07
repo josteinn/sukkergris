@@ -3,7 +3,7 @@ const express = require('express');
 const db = require('./db.js');
 const multer = require('multer');
 const router = express.Router();
-const { secure_group, get_cred, secure_user } = require('./protect.js');
+const { secure_group, get_cred, secure_user, sanitizeFormData } = require('./protect.js');
 const fileUtils = require('./fileutils.js');
 const cfg = require('./config.js');
 const { createProductNumber } = require("./utils.js");
@@ -76,7 +76,7 @@ router.get("/", secure_group, get_cred, async function (req, res, next) {
 });
 
 // POST - add products -----------------------------
-router.post("/", secure_group, secure_user, upload.single("img_file"), async function (req, res, next) {
+router.post("/", secure_group, secure_user, upload.single("img_file"), sanitizeFormData, async function (req, res, next) {
 
 	try {
 
@@ -162,7 +162,7 @@ router.post("/", secure_group, secure_user, upload.single("img_file"), async fun
 });
 
 // PUT - update products -----------------------------
-router.put("/", secure_group, secure_user, upload.single("img_file"), async function (req, res, next) {
+router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFormData, async function (req, res, next) {
 
 	try {
 
