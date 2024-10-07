@@ -84,10 +84,7 @@ router.post("/", secure_group, secure_user, async function (req, res, next) {
             result3 = await db.updateComment(comment_text, rating, bd.product_id, res.locals.userid, result2.rows[0].id, res.locals.groupkey);            
         }
         else {
-
-            console.log((res.locals.userid));
-            result3 = await db.addComment(comment_text, rating, bd.product_id, res.locals.userid, res.locals.groupkey);
-            
+            result3 = await db.addComment(comment_text, rating, bd.product_id, res.locals.userid, res.locals.groupkey);            
         }        
 		
         if (result3.rows.length > 0) {

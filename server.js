@@ -13,6 +13,7 @@ const beenz = require("./modules/rout_beenz.js");
 const logistics = require("./modules/rout_logistics.js");
 const log = require("./modules/rout_logging.js");
 const test = require("./modules/rout_test.js");
+const testComm = require("./modules/rout_test_comm.js");
 const cleanup = require("./modules/cleanup.js");
 const favicon = require('express-favicon');
 const errorhandler = require("./modules/errorhandler.js");
@@ -46,10 +47,12 @@ server.use("/logistics/shippingtypes", shiptypes);
 server.use("/logistics", logistics);
 server.use("/msgboard/messages", messages);
 server.use("/users/beenz", beenz);
+
 //server.use("/public", express.static("tst_client"));
 
 server.use("/log", log);
-server.use("/webshop/testproducts", test);
+server.use("/webshop/testproducts", test); ////must be removed after prod.
+server.use("/", testComm); //must be removed after prod.
 
 //route for static image files ---------------------
 let mount = "C:\\data";
