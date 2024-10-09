@@ -8,7 +8,7 @@ const keyTxt = process.env.GROUP_KEYS;
 const grKeys = keyTxt.split(" ");
 
 cfg = {
-    DB_RECORD_LIMIT: 200,
+    DB_RECORD_LIMIT: 30,
     DB_CRED: connstring,
     SECRET: secret,
     groupkeys: grKeys,
