@@ -30,17 +30,20 @@ router.get("/categories", secure_group, async function (req, res, next) {
 });
 
 // GET - test products ------------------------------
-router.get("/", secure_group, sanitizeInput, async function (req, res, next) {
+router.get("/products", secure_group, sanitizeInput, async function (req, res, next) {
 
     try {
 
         let result;
 
-        if (!req.query["category_id"]) {
-            result = await db.getAllDummyProducts(res.locals.groupkey);
+        if (req.query["category_id"]) {            
+            result = await db.getDummyProductsByCategory(req.query["category_id"], res.locals.groupkey);
+        }
+        else if (!req.query["id"]) {
+            result = await db.getDummyProductById(req.query["id"], res.locals.groupkey);
         }
         else {
-            result = await db.getDummyProductsByCategory(req.query["category_id"], res.locals.groupkey);
+            result = await db.getAllDummyProducts(res.locals.groupkey);
         }
 
         //remove confidensial data to be sent back
@@ -58,11 +61,11 @@ router.get("/", secure_group, sanitizeInput, async function (req, res, next) {
 
 
 // POST - add test products -----------------------------
-router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, async function (req, res, next) {
+router.post("/products", secure_group, upload.single("thumb"), sanitizeFormData, async function (req, res, next) {
 
     try {
 
-        let bd = req.body;
+        let bd = req.body;        
 
         //wrong content-type?
         if (req.headers["content-type"].search(/multipart\/form-data/i) == -1) {
@@ -70,7 +73,7 @@ router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, asyn
         }
 
         //must have product name 
-        let productName = bd["product_name"];
+        let productName = bd["name"];
 
         if (!productName) {
             throw new Error("DB05");
@@ -89,7 +92,7 @@ router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, asyn
         const fields = {
             name: productName,
             description: bd.description || "",
-            category: bd.category || "1",
+            category_id: bd.category_id || "1",
             details: bd.details || "",
             thumb: filename,
             price: bd.price || 0,
@@ -116,7 +119,7 @@ router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, asyn
 
 
 // PUT - update test product -----------------------------
-router.put("/", secure_group, upload.single("img_file"), sanitizeFormData, async function (req, res, next) {
+router.put("/products", secure_group, upload.single("thumb"), sanitizeFormData, async function (req, res, next) {
 
     try {
 
@@ -129,13 +132,13 @@ router.put("/", secure_group, upload.single("img_file"), sanitizeFormData, async
         }
 
         //we must have the id
-        const id = bd["product_id"];
+        const id = bd["id"];
         if (!id) {
             throw new Error("DB05");
         }
 
         //retrieve existing data
-        result = await db.getDummyProductsById(id, res.locals.groupkey);
+        result = await db.getDummyProductById(id, res.locals.groupkey);
 
         if (result.rows.length < 1) {
             throw new Error("DB01");
@@ -156,7 +159,7 @@ router.put("/", secure_group, upload.single("img_file"), sanitizeFormData, async
             id,
             name: bd.product_name || result.rows[0].name,
             description: bd.description || result.rows[0].description,
-            category: bd.category || result.rows[0].category,
+            category_id: bd.category_id || result.rows[0].category_id,
             details: bd.details || result.rows[0].details,
             thumb: filename || result.rows[0].thumb,
             price: bd.price || result.rows[0].price,
@@ -183,12 +186,12 @@ router.put("/", secure_group, upload.single("img_file"), sanitizeFormData, async
 
 
 // DELETE - delete test product -----------------------------
-router.delete("/", secure_group, sanitizeInput, async function (req, res, next) {
+router.delete("/products", secure_group, sanitizeInput, async function (req, res, next) {
 
     try {
         
         //we must have the id
-        if (!req.query["product_id"]) {
+        if (!req.query["id"]) {
             throw new Error("DB05");
         }
 

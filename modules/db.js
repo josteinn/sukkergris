@@ -102,8 +102,8 @@ db.deleteProduct = function(id, groupkey) {
 
 // orders -----------------------------------------------------
 db.addOrder = function(fd) {
-    let sql = "INSERT INTO orders (customer_name, street, city, zipcode, country, shipping_id, content, groupkey, user_id, ordernumber) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *";
-    let val = [fd.name, fd.street, fd.city, fd.zip, fd.country, fd.shipId, fd.content, fd.groupkey, fd.userId, fd.orderNumber];
+    let sql = "INSERT INTO orders (customer_name, street, city, zipcode, country, shipping_id, content, groupkey, user_id, ordernumber, email, phone) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *";
+    let val = [fd.name, fd.street, fd.city, fd.zip, fd.country, fd.shipId, fd.content, fd.groupkey, fd.userId, fd.orderNumber, fd.email, fd.phone];
     return pool.query(sql, val); //return the promise
 }
 db.getAllOrders = function (groupkey) {
@@ -398,14 +398,14 @@ db.getLog = function() {
 }
 
 // test products ---------------------------------------------
-db.getDummyProductsById = function(id, groupkey) {
+db.getDummyProductById = function(id, groupkey) {
     let sql = "SELECT * from dummies WHERE id = $1 AND groupkey = $2";
     let val = [id, groupkey];   
     return pool.query(sql, val); //return the promise
 }
-db.getDummyProductsByCategory = function(category, groupkey) {
-    let sql = "SELECT * from dummies WHERE category = $1 AND groupkey = $2";
-    let val = [category, groupkey];   
+db.getDummyProductsByCategory = function(category_id, groupkey) {
+    let sql = "SELECT * from dummies WHERE category_id = $1 AND groupkey = $2";
+    let val = [category_id, groupkey];   
     return pool.query(sql, val); //return the promise
 }
 db.getAllDummyProducts = function(groupkey) {
@@ -414,13 +414,13 @@ db.getAllDummyProducts = function(groupkey) {
     return pool.query(sql, val); //return the promise
 }
 db.addDummyProduct = function(fd) {
-    let sql = "INSERT INTO dummies (name, description, category, details, thumb, price, groupkey) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"; 
-    let val = [fd.name, fd.description, fd.category, fd.details, fd.thumb, fd.price, fd.groupkey];   
+    let sql = "INSERT INTO dummies (name, description, category_id, details, thumb, price, groupkey) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"; 
+    let val = [fd.name, fd.description, fd.category_id, fd.details, fd.thumb, fd.price, fd.groupkey];   
     return pool.query(sql, val); //return the promise     
 }
 db.updateDummyProduct = function(fd) {    
-    let sql = "UPDATE dummies SET name = $1, description = $2, category = $3, details = $4, thumb = $5, price = $6 WHERE id = $7 AND groupkey = $8 RETURNING *";
-    let val = [fd.name, fd.description, fd.category, fd.details, fd.thumb, fd.price, fd.id, fd.groupkey];
+    let sql = "UPDATE dummies SET name = $1, description = $2, category_id = $3, details = $4, thumb = $5, price = $6 WHERE id = $7 AND groupkey = $8 RETURNING *";
+    let val = [fd.name, fd.description, fd.category_id, fd.details, fd.thumb, fd.price, fd.id, fd.groupkey];
     return pool.query(sql, val); //return the promise
 }
 db.deleteDummyProduct = function(dummy_id, groupkey) {

@@ -76,7 +76,9 @@ router.post("/", secure_group, get_cred, async function (req, res, next) {
             content: bd.content,
             userId: res.locals.userid || null,
             orderNumber: ordernum,
-            groupkey: res.locals.groupkey
+            groupkey: res.locals.groupkey,
+            email: bd.email,
+            phone: bd.phone || null
         };
         
 		result = await db.addOrder(fields);		
