@@ -39,7 +39,7 @@ router.get("/products", secure_group, sanitizeInput, async function (req, res, n
         if (req.query["category_id"]) {            
             result = await db.getDummyProductsByCategory(req.query["category_id"], res.locals.groupkey);
         }
-        else if (!req.query["id"]) {
+        else if (req.query["id"]) {
             result = await db.getDummyProductById(req.query["id"], res.locals.groupkey);
         }
         else {
