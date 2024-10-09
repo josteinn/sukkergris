@@ -144,35 +144,20 @@ router.post("/", secure_group, upload.single("img_file"), sanitizeFormData, asyn
             throw new Error("DB03");
         }
 
-        //**************
-
-        //must have credentials 
-        if (!bd.credentials) {
-            throw new Error("DB05");
-        }
-
-        let cred = decodeCred(bd.credentials);
-
-        if (cred.username.trim() == "" || cred.password.trim() == "") {
-            throw new Error("DB04");
-        }
-
-        //**************
-
-        /*let username = req.body["username"];
+        let username = req.body["username"];
         let password = req.body["password"];
 
         //must have username and password 
         if (!username || !password) {
             throw new Error("DB05");
-        }*/
+        }
 
-        let hash = createHash(cred.password);
+        let hash = createHash(password);
 
         //image handling
         const filename = await fileUtils.imageHandlerUser(req.file, res.locals.groupkey);
 
-        let result = await db.addUser(cred.username, hash.value, hash.salt, bd.fullname, bd.street, bd.city, bd.zipcode, bd.country, filename, res.locals.groupkey);
+        let result = await db.addUser(username, hash.value, hash.salt, bd.fullname, bd.street, bd.city, bd.zipcode, bd.country, filename, res.locals.groupkey);
 
         if (result.rows.length > 0) {
 
@@ -212,33 +197,12 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFo
         if (result.rows.length < 1) {
             throw new Error("DB01");
         }
-
-        //**************
-
-        //credentials
         
-        let cred;
-        if (bd.credentials) {
-            cred = decodeCred(bd.credentials);
-
-            if (cred.username.trim() == "" || cred.password.trim() == "") {
-                throw new Error("DB04");
-            }
-
-            const hash = createHash(cred.password);
-            newHash = hash.value;
-            newSalt = hash.salt;
-        }
-
-        //**************
-
-        /*
         if (bd["password"]) {
             const hash = createHash(bd["password"]);
             newHash = hash.value;
             newSalt = hash.salt;
-        }
-        */
+        }        
 
         //image handling
         let filename;
@@ -253,7 +217,7 @@ router.put("/", secure_group, secure_user, upload.single("img_file"), sanitizeFo
         //create data obj
         const fields = {
             userid: res.locals.userid,
-            name: cred?.username || result.rows[0].username,
+            name: bd.username || result.rows[0].username,
             hash: newHash || result.rows[0].pswhash,
             salt: newSalt || result.rows[0].salt,
             fullname: bd.fullname || result.rows[0].full_name,

@@ -160,3 +160,69 @@ exports.deleteFileUser = async function (filename, groupkey) {
 		throw err;
 	}
 }
+
+//----------------------------------------------
+exports.imageHandlerDummy = async function (file, groupkey) {
+
+	let mount = `C:\\data\\${groupkey}\\dummies`;
+
+	if (process.env.ON_RENDER_CLOUD) {
+		mount = `/var/data/${groupkey}/dummies`;
+	}
+
+	try {
+		
+		let jimpImg;
+		let filename;
+
+		if (!file) {
+			const base64String = defaultImage.image;
+			const base64Data = base64String.replace(/^data:image\/\w+;base64,/, '');	
+			jimpImg = await jimp.read(Buffer.from(base64Data, 'base64'));
+			filename = utils.generateRandomFilename("default.png", groupkey);		
+		}
+		else {
+			jimpImg = await jimp.read(file.buffer);
+			filename = utils.generateRandomFilename(file.originalname, groupkey);
+		}
+
+		jimpImg.resize(100, 100);
+
+		const filepath = path.join(mount, filename);
+
+		// Save the resized image
+		await jimpImg.writeAsync(filepath);		
+
+		return filename;
+	}
+	catch (err) {
+		throw (err);
+	}
+}
+
+//----------------------------------------------
+exports.deleteFileDummy = async function (filename, groupkey) {
+
+	let mount = `C:\\data\\${groupkey}\\dummies`;
+
+	if (process.env.ON_RENDER_CLOUD) {
+		mount = `/var/data/${groupkey}/dummies`;
+	}
+
+	const filepath = path.join(mount, filename);
+
+	try {
+		// Check if the file exists before unlinking
+		try {
+			await fs.access(filepath);
+			await fs.unlink(filepath);
+		} catch (err) {
+			if (err.code !== 'ENOENT') {
+				throw err; // Rethrow if the error is not 'file not found'
+			}
+		}
+		
+	} catch (err) {
+		throw err;
+	}
+}

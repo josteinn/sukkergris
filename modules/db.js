@@ -398,32 +398,32 @@ db.getLog = function() {
 }
 
 // test products ---------------------------------------------
-db.getTestProductsById = function(id, groupkey) {
+db.getDummyProductsById = function(id, groupkey) {
     let sql = "SELECT * from dummies WHERE id = $1 AND groupkey = $2";
     let val = [id, groupkey];   
     return pool.query(sql, val); //return the promise
 }
-db.getTestProductsByCategory = function(category, groupkey) {
+db.getDummyProductsByCategory = function(category, groupkey) {
     let sql = "SELECT * from dummies WHERE category = $1 AND groupkey = $2";
     let val = [category, groupkey];   
     return pool.query(sql, val); //return the promise
 }
-db.getAllTestProducts = function(groupkey) {
+db.getAllDummyProducts = function(groupkey) {
     let sql = "SELECT * from dummies WHERE groupkey = $1";
     let val = [groupkey];   
     return pool.query(sql, val); //return the promise
 }
-db.addTestProduct = function(fd) {
-    let sql = "INSERT INTO dummies (name, description, category, details, img, price, groupkey) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"; 
-    let val = [fd.name, fd.description, fd.category, fd.details, fd.image, fd.price, fd.groupkey];   
+db.addDummyProduct = function(fd) {
+    let sql = "INSERT INTO dummies (name, description, category, details, thumb, price, groupkey) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"; 
+    let val = [fd.name, fd.description, fd.category, fd.details, fd.thumb, fd.price, fd.groupkey];   
     return pool.query(sql, val); //return the promise     
 }
-db.updateTestProduct = function(fd) {    
-    let sql = "UPDATE dummies SET name = $1, description = $2, category = $3, details = $4, img = $5, price = $6 WHERE id = $7 AND groupkey = $8 RETURNING *";
-    let val = [fd.name, fd.description, fd.category, fd.details, fd.image, fd.price, fd.id, fd.groupkey];
+db.updateDummyProduct = function(fd) {    
+    let sql = "UPDATE dummies SET name = $1, description = $2, category = $3, details = $4, thumb = $5, price = $6 WHERE id = $7 AND groupkey = $8 RETURNING *";
+    let val = [fd.name, fd.description, fd.category, fd.details, fd.thumb, fd.price, fd.id, fd.groupkey];
     return pool.query(sql, val); //return the promise
 }
-db.deleteTestProduct = function(dummy_id, groupkey) {
+db.deleteDummyProduct = function(dummy_id, groupkey) {
     let sql = "DELETE FROM dummies WHERE id = $1 AND groupkey = $2 RETURNING *"; 
     let val = [dummy_id, groupkey];   
     return pool.query(sql, val); //return the promise
