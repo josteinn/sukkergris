@@ -17,10 +17,10 @@ router.get("/", secure_group, get_cred, async function (req, res, next) {
 	try {
 
 		let result;
-		let search;
+		let search = req.query["search"];
 
 		//not a searchtext?
-		if (!req.query["search"]) {
+		if (!search) {
 			search = "";
 		}
 
