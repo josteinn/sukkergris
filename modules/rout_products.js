@@ -88,6 +88,10 @@ router.post("/", secure_group, secure_user, upload.single("img_file"), sanitizeF
 		}
 
 		//wrong content-type?
+		if (!req.headers["content-type"]) {
+			throw new Error("SRV01");
+		}
+
 		if (req.headers["content-type"].search(/multipart\/form-data/i) == -1) {
 			throw new Error("SRV01");
 		}

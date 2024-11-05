@@ -13,7 +13,7 @@ router.get("/", secure_group, get_cred, async function (req, res, next) {
         let result;
         
         if (req.query["product_id"]) {
-            let plant_id = req.query["product_id"].trim();
+            let product_id = req.query["product_id"].trim();
             result = await db.getAllCommentsByProduct(product_id, res.locals.groupkey); 
         }
         else {
